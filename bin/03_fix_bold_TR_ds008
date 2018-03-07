@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# This script fixes the TRs in the bold files for the ds008 data set
+# information about the scan.
+
+cd ~/Projects/ds008
+
+echo "=========================================================="
+# for each bold file in the dataset
+for bold_file in $(find sub??? -name bold.nii.gz) ; do
+
+    # get the directory name from the file
+    bold_dir=$(dirname $bold_file)
+    if [ ! -e "$bold_dir/00_TR_FIXED" ] ; then
+
+        # get the pixdims from the current file and save in pixdims
+        # save the first three pixdims, as they are correct
+	#rather than pulling individual, if using in an input with spacing, can select multiple columns at once
+
+        dims=$(fslinfo $bold_file | grep 'pixdim' | awk '{ print $2, $4, $6 }')
+
+       #pixdims=$(echo $dims | awk '{ print $4 }')
+       #pixdims="$pixdims $(echo $dims | awk '{ print $4 }')"
+       #pixdims="$pixdims $(echo $dims | awk '{ print $6 }')"
+       #original="$pixdims $(echo $dims | awk '{ print $8 }')"
+        # Add the correct TR to the pixdims
+        pixdims="$dims 2.000000"
+        fslchpixdim $bold_file $pixdims
+        if [ $? -eq 0 ] ; then
+            echo "    Success"
+            touch $bold_dir/00_TR_FIXED
+        fi
+        dims=$(fslinfo $bold_file | grep 'pixdim')
+        pixdims=$(echo $dims | awk '{ print $2 }')
+        pixdims="$pixdims $(echo $dims | awk '{ print $4 }')"
+        pixdims="$pixdims $(echo $dims | awk '{ print $6 }')"
+        pixdims="$pixdims $(echo $dims | awk '{ print $8 }')"
+        echo "Original pixdims:  $original"
+        echo "Corrected pixdims: $pixdims"
+        echo
+    else
+        echo "$bold_file has already been processed"
+        echo
+    fi
+    echo "=========================================================="
+done
+
