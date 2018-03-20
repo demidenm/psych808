@@ -1,0 +1,49 @@
+#!/bin/bash
+Projects=$HOME/Projects
+ofmri=$Projects/ds008
+
+
+#check if ds008 directoy exists, if not, creates
+test -d $ofmri
+#if command is true, exists saying folder exists.
+if [ $? -eq 0 ] ; then
+	echo "The $ofmri folder exists. Please remove it and rerun."
+	exit 1
+#otherwise, cds to projects folder and unzips the ds008 files
+else cd $Projects
+tar xzvf /nfs/turbo/arcts-dads-nii-open/classdata/ds008_raw.tgz
+
+fi
+
+#navigates to next script
+cd $ofmri
+#assigns subjects variables to all items in ds008 directory, noting variability via ??? for 3 values following subect
+subjects=$(ls -d sub???)
+
+# navigates into each subjects folder and  deletes QA directory with BOLD trail/runs
+for subject in $subjects ; do
+	for run in {01..03}; do
+		if [ -d $ofmri/$subject/BOLD/task0${run}_run0$run/ ] ; then
+			 cd $ofmri/$subject/BOLD/task0${run}_run0$run/
+				if [ -d  QA ] ; then
+					rm  -r QA 
+if [ $? -eq 0 ] ; then
+        echo "QA dir has been removed out of BOLD folder for subjects: $subjects"
+			fi
+			fi
+		fi
+	done
+done
+
+# navigates into each subjects folder and  deletes foo file from behav folder
+for subject in $subjects ; do
+                if [ -d $ofmri/$subject/behav ] ; then
+                         cd $ofmri/$subject/behav/
+                                if [ -s $ofmri/$subjects/behav/foo ] ; then
+                                        rm foo 
+if [ $? -eq 0 ] ; then
+        echo "foo file has been removed out of behav folder for $subjects"
+	fi                    
+                        fi
+                fi
+done

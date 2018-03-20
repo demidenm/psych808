@@ -1,0 +1,88 @@
+#!/bin/bash
+
+echo "
+The scripts for this project are listed below. For processing files,
+the leading number is indicative of the order in which they should be
+run.
+"
+echo
+
+echo "==============="
+echo "00_setup_ds008"
+echo "=============="
+echo "
+This will expand the ds008_raw.tar.gz file from the archive location into
+the ~/Projects directory from which it is run.  It first checks to see if the
+ds008 directory already exists, and it exits if it does to prevent accidental
+overwrite.
+"
+echo
+
+echo "========================="
+echo "01_brain_extraction_ds008"
+echo "========================="
+echo "
+This script will run the bet to do brain extraction on the highres001.nii.gz
+anatomical image for all subjects.
+"
+echo
+
+
+echo "====================="
+echo "02_check_images_ds008"
+echo "====================="
+echo "
+This will look in the dataset directory for image files for each subject in
+    $subject/anatomy/highres001.nii.gz
+    $subject/BOLD/task???_run???/bold.nii.gz
+and print out header information about the dimensions for volumes, slices,
+voxels, and the TR for functional time series (bold) files.
+"
+echo
+
+echo "=========================="
+echo "02_check_images_find_ds008"
+echo "=========================="
+echo "
+This is the same as 02_check_images except that it uses find to locate the
+bold.nii.gz files to avoid having to check for existence in the loop over
+the bold files.
+"
+echo
+
+echo "===================="
+echo "03_fix_bold_TR_ds008"
+echo "===================="
+echo "
+This script fixes the TRs in the bold files for the ds008 data set.  It
+queries the bold file for the values of pixdim1-pixdim3, changes the TR
+to the correct value of 2.000000 and prints the old and new values for
+all four pixdims. It also creates a semaphore file, 00_TR_FIXED in the same
+folder as the bold file, to indicate that this change has occurred.
+"
+
+
+echo "=========================="
+echo "04_prepare_bold_data_ds008"
+echo "=========================="
+echo "
+This script runs the fsl_motion_outliers command on all the functional bold
+files in the data set and creates a file with any confound images in it, a
+frame_displacement_vals.txt file with the actual framewised displacement
+measure in it, and a frame_displacement_plot.png file, all in a newly created
+motion_assess folder in the task/run folder with the bold file being assessed.
+An empty confound.txt file is created if no confounds are found so that the
+design.fsf file can refer to it regardless.  If rerun, the motion_assess folder
+is removed first.
+"
+echo
+
+echo "======================="
+echo "setup-tmp-subject_ds008"
+echo "======================="
+echo "
+This script will create a ~/Projects/tmp folder if needed and copy a subject
+data folder into it. If the subject folder exists; it will not overwrite.
+If the source folder does not exist, it will exit.
+"
+echo

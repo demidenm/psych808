@@ -1,0 +1,21 @@
+#!/bin/bash
+Projects=$HOME/Projects
+mri=$HOME/Projects/UM
+
+#if command is true, exists saying folder exists.
+cd $mri
+subjects=$(ls -d sub???)
+
+for subject in $subjects ; do
+	for id in {001..015} ; do
+		if [ -s $mri/$subject/anatomy/highres${id}.nii.gz ] ; then
+		bet $mri/$subject/anatomy/highres${id}.nii.gz $mri/$subject/anatomy/highres${id}_brain.nii.gz -R -m
+			if [ $? -eq 0 ] ; then
+			echo "For $subject running" >>  $Projects/output/highresnii.log
+				echo "bet hires${id}_brain.nii.gz -R -m" >>  $Projects/output/highresnii.log
+				echo "success" >>  $Projects/output/highresnii.log
+			fi
+	fi
+	done
+done
+

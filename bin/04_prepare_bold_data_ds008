@@ -1,0 +1,37 @@
+#!/bin/bash
+
+cd ~/Projects/ds008
+
+bold_files=$(find sub??? -name bold.nii.gz | sort)
+
+echo -n "Beginning motion assessment:  "
+date
+for bold_file in $bold_files ; do
+    bold_dir=$(dirname $bold_file)
+    motion_dir="$bold_dir/motion_assess"
+    if [ -d $motion_dir ] ; then
+        rm -r $motion_dir
+    fi
+    mkdir $motion_dir
+    echo "======================================================================"
+    # run motion assessment
+    fsl_motion_outliers -i $bold_file \
+           -o $motion_dir/confound.txt \
+           -s $motion_dir/frame_displacement_vals.txt \
+           -v --fd --thresh=0.9 \
+           -p $motion_dir/frame_displacement_plot | tee $motion_dir/outlier.txt
+    # if there isn't a confound.txt file, create an empty one
+    if [ -e $motion_dir/confound.txt ] ; then
+        echo "fsl_motion_outliers created confound.txt"
+    else
+        echo "No extreme motion found; creating empty confound.txt"
+        touch $motion_dir/confound.txt
+    fi
+    echo
+done
+echo "======================================================================"
+echo -n "Motion assessment finished:  "
+date
+echo
+
+
